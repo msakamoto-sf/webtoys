@@ -1,0 +1,56 @@
+<html>
+<head>
+<title>Web Storage Example : with iframe</title>
+<script src="./t_webstorage.js"></script>
+</head>
+<body>
+
+<h3>Inner Context</h3>
+<form>
+<h4>Value:</h4>
+<input type="text" name="testkey" value="" />
+<h4>Local Storage</h4>
+<input type="button" value="getkey_l()" onclick="getkey_l()" />
+<input type="button" value="setkey_l()" onclick="setkey_l()" />
+<h4>Session Storage</h4>
+<input type="button" value="getkey_s()" onclick="getkey_s()" />
+<input type="button" value="setkey_s()" onclick="setkey_s()" />
+</form>
+
+<hr />
+<h3>sub1.foo.example.com (iframe named "sub")</h3>
+<iframe src="http://sub1.foo.example.com/webtoys/html5/webstorage/t_js_same_domain.html" name="sub"></iframe>
+<hr />
+<script>
+function getkey_l2()
+{
+  alert(window.sub.localStorage.testkey);
+}
+function setkey_l2()
+{
+  window.sub.localStorage.testkey = document.forms[1].testkey2.value;
+}
+function getkey_s2()
+{
+  alert(window.sub.sessionStorage.testkey);
+}
+function setkey_s2()
+{
+  window.sub.sessionStorage.testkey = document.forms[1].testkey2.value;
+}
+</script>
+<p>When this page is accessed via sub1.foo.example.com, "window.sub.session|localStorage" will works.</p>
+<p>Accessed via other domains (like foo.example.com), "window.sub.session|localStorfage won't work.</p>
+<form>
+<h4>Value:</h4>
+<input type="text" name="testkey2" value="" />
+<h4>Local Storage</h4>
+<input type="button" value="getkey_l2()" onclick="getkey_l2()" />
+<input type="button" value="setkey_l2()" onclick="setkey_l2()" />
+<h4>Session Storage</h4>
+<input type="button" value="getkey_s2()" onclick="getkey_s2()" />
+<input type="button" value="setkey_s2()" onclick="setkey_s2()" />
+</form>
+
+</body>
+</html>

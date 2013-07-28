@@ -1,0 +1,45 @@
+<html>
+<head>
+<title>jQuery XSS Test</title>
+<script type="text/javascript" src="./libs/jquery-1.6.1.js"></script>
+</head>
+<body>
+<script type="text/javascript">
+function add_html_danger(msg)
+{
+	var p1 = document.getElementById("p1");
+	p1.innerHTML = msg;
+}
+function add_html_safe1(msg)
+{
+	var p2 = document.getElementById("p2");
+	p2.firstChild.nodeValue = msg;
+}
+function add_html_safe2(msg)
+{
+	var p2 = document.getElementById("p2");
+	var t = document.createTextNode(msg);
+	var c = p2.firstChild;
+	p2.replaceChild(t, c);
+}
+function add_html_safe3(msg)
+{
+	$("#p2").text(msg);
+}
+</script>
+
+<input type="button" value="innerHTML : danger" onClick="add_html_danger('<b>hello</b>');" /><br />
+<input type="button" value="nodeValue : safe" onClick="add_html_safe1('<b>hello</b>');" /><br />
+<input type="button" value="createTextNode and replaceChild : safe" onClick="add_html_safe2('<b>hello2</b>');" /><br />
+<input type="button" value="jQuery.text() : safe" onClick="add_html_safe3('<b>hello3</b>');" /><br />
+<hr />
+result:<br />
+<p id="p1">foobar</p>
+<p id="p2">barbaz</p>
+<hr />
+<a href="#foo<b>bar</b>">hash!</a><br />
+<hr />
+after "hash!" link click:<br />
+<input type="button" value="innerHTML : danger" onClick="add_html_danger(location.hash);" /><br />
+</body>
+</html>

@@ -1,0 +1,20 @@
+<?php function h($s) { echo htmlspecialchars($s, ENT_QUOTES); } ?>
+<html>
+<head>
+<title>jQuery XSS Test</title>
+<script type="text/javascript" src="../jquery-1.6.1.min.js"></script>
+</head>
+<body>
+<a href="?data=<?php h('<b>bold</b>'); ?>">test1</a><br />
+<a href="?data=<?php h('</script><script>alert(\'xss\')</script>'); ?>">test2</a><br />
+<div id="msg">dummy</div>
+<input type="button" value="act1" onclick="act1()" />
+<input type="button" value="act2" onclick="act2()" />
+
+<script type="text/javascript">
+function act1() { $('#msg').text('<?php echo @$_GET['data']; ?>'); }
+function act2() { $('#msg').html('<?php echo @$_GET['data']; ?>'); }
+</script>
+
+</body>
+</html>

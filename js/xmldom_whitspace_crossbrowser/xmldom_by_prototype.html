@@ -1,0 +1,46 @@
+<html>
+  <head>
+    <title>XML DOM Element White-Space-Element Cross Browser Problem (using prototype.js)</title>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/prototype/1.7/prototype.js"></script>
+    <script type="text/javascript">
+      function load_xml(url) {
+        new Ajax.Request(url,
+          {
+            method : 'get',
+            onComplete : function(xhr) {
+              var msg = "";
+              var xmldoc = xhr.responseXML;
+              var bookNodeList = xmldoc.getElementsByTagName("book");
+              for (var i = 0; i < bookNodeList.length; i++) {
+                var bookNode = bookNodeList[i];
+                msg = msg + bookNode.nodeName + "\n";
+                msg = msg + "  (nodeName,  nodeType)\n";
+                var childNodeList = bookNode.childNodes;
+                for (var j = 0; j < childNodeList.length; j++) {
+                  var el = childNodeList[j];
+                  msg = msg + "  " + el.nodeName + ",  " + el.nodeType + "\n";
+                }
+              }
+              $("t1").value = msg;
+            }
+          });
+      }
+    </script>
+  </head>
+  <body>
+    <h1>XML DOM Element White-Space-Element Cross Browser Problem (using prototype.js)</h1>
+    <div>
+    <input type="button" 
+    value="Load XML WITHOUT White-Space-Element" 
+    onClick="load_xml('./books_without_ws.xml')" /><br />
+    </div>
+    <hr />
+    <div>
+    <input type="button" 
+    value="Load XML WITH White-Space-Element" 
+    onClick="load_xml('./books_with_ws.xml')" /><br />
+    </div>
+    <hr />
+    <textarea id="t1" cols="40" rows="5"></textarea>
+  </body>
+</html>

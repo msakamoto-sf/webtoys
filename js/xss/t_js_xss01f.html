@@ -1,0 +1,18 @@
+<html>
+<head>
+<title>JavaScript XSS Test</title>
+</head>
+<body>
+<!-- Chrome(WebKit), Firefox(Gecko) OK, and IE NG -->
+Hello, 
+<script type="text/javascript">
+<!--
+(function (){
+	var s = '\x3cscript\x3ealert(\'xss\')\x3c/script\x3eWorld!';
+	document.write(s);
+})();
+//-->
+</script>
+
+</body>
+</html>

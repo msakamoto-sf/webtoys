@@ -1,0 +1,351 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" 
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<script src="./libs/jquery-1.6.1.js"></script>
+<link rel="stylesheet" href="./libs/qunit.css" type="text/css" media="screen" />
+<script type="text/javascript" src="./libs/qunit.js"></script>
+
+<script>
+$(document).ready(function(){
+
+module("Object Creation Patterns");
+// {{{ Create Object from Function
+
+test("Create Object from Function", function() {
+function Klass(cp){
+  this.prop1 = cp;
+  this.f1 = function(){return cp + " foo";}
+  this.f2 = function(){return this.prop1 + " bar";}
+}
+
+var o1 = new Klass('egg');
+var o2 = new Klass('bread');
+
+ok(o1.prop1 == 'egg');
+ok(o2.prop1 == 'bread');
+ok(o1.f1() == 'egg foo');
+ok(o1.f2() == 'egg bar');
+ok(o2.f1() == 'bread foo');
+ok(o2.f2() == 'bread bar');
+
+o1.prop1 = 'potato';
+ok(o1.prop1 == 'potato');
+ok(o2.prop1 == 'bread');
+ok(o1.f1() == 'egg foo');
+ok(o1.f2() == 'potato bar'); /* using this.prop1 */
+ok(o2.f1() == 'bread foo');
+ok(o2.f2() == 'bread bar');
+
+});
+
+// }}}
+// {{{ Create Object from Literal
+
+test("Create Object from Literal", function() {
+
+var o1 = {
+  prop1 : 'foo',
+  f1 : function(){return typeof(this) + '_' + this.prop1 + '_bar';},
+  f2 : function(arg){return this == arg;}
+}
+equal(o1.prop1, 'foo');
+equal(o1.f1(), 'object_foo_bar');
+equal(o1.f2(null), false);
+equal(o1.f2(o1), true);
+
+var fx = function(){return this.prop1 + '_fx';}
+o1.f3 = fx;
+equal(o1.f3(), 'foo_fx');
+equal(fx(), 'undefined_fx');
+});
+
+// }}}
+
+module("Inherit Patterns");
+// {{{ Inherit Pattern : clone()
+
+test("Inherit Pattern : clone()", function() {
+
+var clone = function(s){
+  var f = function(){};
+  f.prototype = s;
+  return new f();
+}
+
+var Animal = { sleep: function(){ return 'zzz...';}};
+var h = clone(Animal);
+h.walk = function(){ return 'teku, teku'; };
+
+equal(Animal.sleep(), 'zzz...', "Animal.sleep() return val");
+equal(h.sleep(), Animal.sleep(), 
+  "cloned h.leep() should be equal Animal.sleep().");
+equal(h.walk(), 'teku, teku',
+  "h.walk() return val");
+
+});
+
+// }}}
+// {{{ Inherit Pattern : extend()
+
+test("Inherit Pattern : extend()", function() {
+/**
+ * extend function
+ *
+ * @param {Object} s superclass
+ * @param {Function} c constructor
+ */
+var extend = function(s, c){
+  var f = function(){};
+  f.prototype = s.prototype;
+  c.prototype = new f();
+  c.prototype.mysuper = s.prototype;
+  c.prototype.mysuper.constructor = s;
+  c.prototype.constructor = c;
+  return c;
+}
+
+var Animal = function(p){ this.initp = p; }
+Animal.prototype = {
+  sleep : function() { return this.initp; },
+  walk : function() { return 'noshi, noshi'; }
+}
+
+var v = new Animal('abc');
+equal(v.initp, 'abc', "Animal.initp");
+equal(v.sleep(), 'abc', "Animal.prototype.sleep()");
+equal(v.walk(), 'noshi, noshi', "Animal.prototype.walk()");
+
+var Human = extend(Animal, function(p){
+this.mysuper.constructor(p);
+this.initp = this.mysuper.initp + " in Human";
+});
+Human.prototype.walk = function() {
+  var r = this.mysuper.walk();
+  return r + ' and teku, teku';
+}
+
+var v2 = new Human('def');
+equal(v2.initp, 'def in Human', "Human.initp");
+equal(v2.sleep(), 'def in Human', "Human.sleep() returns Human.initp");
+equal(v2.walk(), 'noshi, noshi and teku, teku', "Human.walk()");
+});
+
+// }}}
+// {{{ Inherit Pattern : prototype
+
+test("Inherit Pattern : prototype", function() {
+
+var Klass = function(){};
+Klass.prototype = {
+  p1 : 'abc',
+  f1 : function(){},
+  f2 : function(){ return 'def'; }
+}
+Klass.f3 = function(){ return 'ghi'; }
+
+ok(!Klass.hasOwnProperty('p1'), "Klass doesn't have p1.");
+ok(!Klass.hasOwnProperty('f1'), "Klass doesn't have f1.");
+ok(!Klass.hasOwnProperty('f2'), "Klass doesn't have f2.");
+ok(Klass.hasOwnProperty('f3'), "Klass.p1 doesn't exist.");
+
+ok(Klass.prototype.hasOwnProperty('p1'), "Klass.prototype has p1.");
+ok(Klass.prototype.hasOwnProperty('f1'), "Klass.prototype has f1.");
+ok(Klass.prototype.hasOwnProperty('f2'), "Klass.prototype has f2.");
+ok(!Klass.prototype.hasOwnProperty('f3'), "Klass.prototype doesn't have f3.");
+
+ok(!('p1' in Klass), "Klass.p1 isn't iterative property.");
+ok(!('f1' in Klass), "Klass.f1 isn't iterative property.");
+ok(!('f2' in Klass), "Klass.f2 isn't iterative property.");
+ok('f3' in Klass, "Klass.f3 is iterative property.");
+ok('ghi' == Klass.f3(), "Klass.f3() return value.");
+
+var o1 = new Klass();
+ok('p1' in o1, "Klass' instance has p1, iterative property.");
+ok('f1' in o1, "Klass' instance has f1, iterative property.");
+ok('f2' in o1, "Klass' instance has f2, iterative property.");
+ok(!('f3' in o1), "Klass' instance doesn't have f3.");
+ok('abc' == o1.p1, "Klass' instance's p1 property.");
+ok('def' == o1.f2(), "Klass' instance's f2() return value.");
+
+var Klass2 = function(){};
+Klass2.prototype = new Klass();
+
+var o2 = new Klass2();
+ok('p1' in o2, "Klass2's instance has p1, iterative property.");
+ok('f1' in o2, "Klass2's instance has f1, iterative property.");
+ok('f2' in o2, "Klass2's instance has f2, iterative property.");
+ok(!('f3' in o2), "Klass2's instance doesn't have f3.");
+ok('abc' == o2.p1, "Klass2's instance's p1 property.");
+ok('def' == o2.f2(), "Klass2's instance's f2() return value.");
+});
+
+// }}}
+
+module("JSON Native Object");
+// {{{ JSON.stringify(empty element)
+test("JSON.stringify(empty element)", function(undefined) {
+
+equal(JSON.stringify(null), "null");
+equal(JSON.stringify(undefined), undefined);
+equal(JSON.stringify(""), "\"\"");
+equal(JSON.stringify(0), "0");
+equal(JSON.stringify(true), "true");
+equal(JSON.stringify(false), "false");
+equal(JSON.stringify([]), "[]");
+equal(JSON.stringify({}), "{}");
+
+});
+// }}}
+// {{{ JSON.stringify(single array element)
+test("JSON.stringify(single array element)", function(undefined) {
+
+equal(JSON.stringify([null]), "[null]");
+equal(JSON.stringify([undefined]), "[null]");
+equal(JSON.stringify([0]), "[0]");
+equal(JSON.stringify([""]), "[\"\"]");
+equal(JSON.stringify([true]), "[true]");
+equal(JSON.stringify([false]), "[false]");
+
+});
+// }}}
+// {{{ JSON.stringify(single object element)
+test("JSON.stringify(single object element)", function(undefined) {
+
+equal(JSON.stringify({null:null}), "{\"null\":null}");
+equal(JSON.stringify({undefined:undefined}), "{}");
+equal(JSON.stringify({null:0}), "{\"null\":0}");
+equal(JSON.stringify({null:""}), "{\"null\":\"\"}");
+equal(JSON.stringify({null:true}), "{\"null\":true}");
+equal(JSON.stringify({null:false}), "{\"null\":false}");
+equal(JSON.stringify({null:true, null:false}), "{\"null\":false}");
+
+});
+// }}}
+// {{{ JSON.stringify(typical object)
+test("JSON.stringify(typical object)", function(undefined) {
+
+equal(JSON.stringify({10:null,20:undefined}), "{\"10\":null}");
+equal(JSON.stringify({10:"hello",20:100}), "{\"10\":\"hello\",\"20\":100}");
+equal(JSON.stringify({10:"hello","key1":[],"key2":[10,20]}), "{\"10\":\"hello\",\"key1\":[],\"key2\":[10,20]}");
+
+});
+// }}}
+// {{{ JSON.stringify(character handling)
+test("JSON.stringify(character handling)", function(undefined) {
+
+equal(JSON.stringify({10:"h'\f\"\t\b\r\nello",20:100}), "{\"10\":\"h'\\f\\\"\\t\\b\\r\\nello\",\"20\":100}");
+equal(JSON.stringify({"'\f\"\t\b\r\n":"'\f\"\t\b\r\n"}), "{\"'\\f\\\"\\t\\b\\r\\n\":\"'\\f\\\"\\t\\b\\r\\n\"}");
+equal(JSON.stringify({"\u0061\u0062\u0063":"\u0064\u0065\u0066"}), "{\"abc\":\"def\"}");
+equal(JSON.stringify({"あいう":"えお"}), "{\"あいう\":\"えお\"}");
+var s = "";
+for (i = 0; i < 128; i++) {
+  s = s + String.fromCharCode(i);
+}
+equal(JSON.stringify(s), "\"\\u0000\\u0001\\u0002\\u0003\\u0004\\u0005\\u0006\\u0007\\b\\t\\n\\u000b\\f\\r\\u000e\\u000f\\u0010\\u0011\\u0012\\u0013\\u0014\\u0015\\u0016\\u0017\\u0018\\u0019\\u001a\\u001b\\u001c\\u001d\\u001e\\u001f !\\\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\u007f\"");
+
+});
+// }}}
+
+module("Innocent Ambiguity");
+// {{{ Variable Scopes
+
+test("Variable Scopes", function(undefined) {
+
+foo = 'abc';
+(function(){
+  equal(foo, 'abc');
+})();
+
+(function(){
+  var foo;
+  equal(foo, undefined);
+  foo = 'def';
+  equal(foo, 'def');
+})();
+equal(foo, 'abc');
+
+(function(){
+  foo = 'ghi';
+})();
+equal(foo, 'ghi');
+
+{
+  raises(function(){
+    bar + 1;
+  });
+  equal(foo, 'ghi');
+  var foo = 'jkl';
+}
+equal(foo, 'jkl');
+});
+
+// }}}
+// {{{ Mistery of THIS
+test("Mistery of THIS", function(undefined) {
+
+// from Object literal, "this" referes global scope object("window").
+function f_a(){return this == window;}
+function f_b(){return f_a();}
+var o1 = {f:f_b}
+equal(o1.f(), true);
+
+// from Function constructor, "this" referes Function object itself.
+var this_is_window = false;
+function Klass(){
+  this_is_window = (this == window);
+}
+
+var o2 = new Klass();
+ok(!this_is_window);
+Klass();
+ok(this_is_window);
+});
+
+// }}}
+// {{{ Last Comma Behaviours
+test("Last Comma Behaviours", function(undefined) {
+
+var o1;
+if ($.browser.msie) {
+  o1 = {
+    p1 : 'abc',
+    p2 : 'def',
+    p3 : 'ghi'
+  }
+  equal(o1.p3, 'ghi');
+} else {
+  o1 = {
+    p1 : 'ABC',
+    p2 : 'DEF',
+    p3 : 'GHI',
+  }
+  equal(o1.p3, 'GHI');
+}
+
+var a1 = [];
+equal(a1.length, 0);
+var a2 = [,];
+if ($.browser.msie && $.browser.version < 9.0) {
+  equal(a2.length, 2);
+} else {
+  equal(a2.length, 1);
+}
+
+});
+
+// }}}
+});
+</script>
+</head>
+<body>
+<h1 id="qunit-header">JavaScript Inherit Variations</h1>
+<h2 id="qunit-banner"></h2>
+<div id="qunit-testrunner-toolbar"></div>
+<h2 id="qunit-userAgent"></h2>
+<ol id="qunit-tests"></ol>
+<div id="qunit-fixture">test markup, will be hidden</div>
+</body>
+</html>
+

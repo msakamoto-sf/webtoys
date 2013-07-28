@@ -1,0 +1,63 @@
+<html>
+  <head>
+    <title>XML DOM Element White-Space-Element Cross Browser Problem (using jQuery)</title>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
+    <script type="text/javascript">
+      function load_xml(url) {
+        var msg = "(nodeName,  nodeType) in book node\n";
+        $.ajax({
+          async: false, // sync for alert(msg)
+          url: url,
+          type: 'GET',
+          dataType: 'xml',
+          success: function(xml){
+            $(xml).find("book").contents().each(function() {
+              msg = msg + this.nodeName + ",  " + this.nodeType + "\n";
+            });
+          }
+        });
+        $("#t1").text(msg);
+      }
+      function load_xml2(url) {
+        var msg = "(nodeName,  nodeType) in book node\n";
+        $.ajax({
+          async: false, // sync for alert(msg)
+          url: url,
+          type: 'GET',
+          dataType: 'xml',
+          success: function(xml){
+            $(xml).find("book").contents()
+              .filter(function() {
+                return this.nodeType != 3;
+              }).each(function() {
+                msg = msg + this.nodeName + ",  " + this.nodeType + "\n";
+              });
+          }
+        });
+        $("#t1").text(msg);
+      }
+    </script>
+  </head>
+  <body>
+    <h1>XML DOM Element White-Space-Element Cross Browser Problem (using jQuery)</h1>
+    <div>
+    <input type="button" 
+    value="Load XML WITHOUT White-Space-Element" 
+    onClick="load_xml('./books_without_ws.xml')" />
+    </div>
+    <hr />
+    <div>
+    <input type="button" 
+    value="Load XML WITH White-Space-Element" 
+    onClick="load_xml('./books_with_ws.xml')" />
+    </div>
+    <hr />
+    <div>
+    <input type="button" 
+    value="Load XML WITH White-Space-Element(2)" 
+    onClick="load_xml2('./books_with_ws.xml')" />
+    </div>
+    <hr />
+    <textarea id="t1" cols="40" rows="5"></textarea>
+  </body>
+</html>

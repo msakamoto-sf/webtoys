@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>File System API demo</title>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js" type="text/javascript" ></script>
+<script src="./t_fsdemo.js" type="text/javascript" ></script>
+</head>
+<body>
+<h2>File System API Demos</h2>
+<script>
+$(document).ready(function(){
+$('#supported').text((fsdemo.is_supported) ? 'yes' : 'no');
+$('#localfs').text((fsdemo.keep_LocalFileSystem) ? 'yes' : 'no');
+$('#webkit').text((fsdemo.use_webkit) ? 'yes' : 'no');
+});
+</script>
+<dl>
+<dt>supported?</dt>
+<dd id="supported"></dd>
+<dt>use LocalFileSystem(not Chrome) or not?</dt>
+<dd id="localfs"></dd>
+<dt>use webkitRequestFileSystem(Chrome) or not ?</dt>
+<dd id="webkit"></dd>
+<dt><a href="#" onclick="fsdemo.requestPersistent(function(fs){$('#fs_name_p').text(fs.name);})">fs.name(persistent)</a></dt>
+<dd id="fs_name_p">-</dd>
+<dt><a href="#" onclick="fsdemo.requestPersistent(function(fs){$('#fs_root_name_p').text(fs.root.name);})">fs.root.name(persistent)</a></dt>
+<dd id="fs_root_name_p">-</dd>
+<dt><a href="#" onclick="fsdemo.requestPersistent(function(fs){$('#fs_root_fullpath_p').text(fs.root.fullPath);})">fs.root.fullPath(persistent)</a></dt>
+<dd id="fs_root_fullpath_p">-</dd>
+<dt><a href="#" onclick="fsdemo.requestTemporary(function(fs){$('#fs_name_t').text(fs.name);})">fs.name(temporary)</a></dt>
+<dd id="fs_name_t">-</dd>
+<dt><a href="#" onclick="fsdemo.requestTemporary(function(fs){$('#fs_root_name_t').text(fs.root.name);})">fs.root.name(temporary)</a></dt>
+<dd id="fs_root_name_t">-</dd>
+<dt><a href="#" onclick="fsdemo.requestTemporary(function(fs){$('#fs_root_fullpath_t').text(fs.root.fullPath);})">fs.root.fullPath(temporary)</a></dt>
+<dd id="fs_root_fullpath_t">-</dd>
+</dl>
+
+<a href="#" onclick="alert(fsdemo.last_file_entry_fullpath);return false;">show last fileEntry's fullPath</a>
+
+<h3>Save To/Load From Persistent FileSystem</h3>
+filename:<input type="text" id="fname_p" value="foo.txt"><br>
+<textarea id="body_p" rows="5" cols="40"></textarea><br>
+<a href="#" onclick="fsdemo.saveToPersistent($('#fname_p').val(), $('#body_p').val());return false;">save</a><br>
+<a href="#" onclick="fsdemo.loadFromPersistent($('#fname_p').val(), function(data){$('#body_p').val(data);});return false;">load</a><br>
+
+<h3>Temporary File System</h3>
+filename:<input type="text" id="fname_t" value="foo.txt"><br>
+<textarea id="body_t" rows="5" cols="40"></textarea><br>
+<a href="#" onclick="fsdemo.saveToTemporary($('#fname_t').val(), $('#body_t').val());return false;">save</a><br>
+<a href="#" onclick="fsdemo.loadFromTemporary($('#fname_t').val(), function(data){$('#body_t').val(data);});return false;">load</a><br>
+
+</body>
+</html>

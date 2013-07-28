@@ -1,0 +1,21 @@
+<?php function h1($s) { echo htmlspecialchars($s, ENT_QUOTES); } ?>
+<?php function h2($s) { echo htmlspecialchars($s, ENT_COMPAT); } ?>
+<html>
+<head>
+<title>jQuery XSS Test</title>
+<script type="text/javascript" src="../jquery-1.6.1.min.js"></script>
+</head>
+<body>
+<a href="?data=<?php h1('<b>bold</b>'); ?>">test1</a><br />
+<a href="?data=<?php h1("a');alert('xss"); ?>">test2</a><br />
+<div id="msg">dummy</div>
+<input type="button" value="act1" onclick="act1()" />
+<input type="button" value="act2" onclick="act2()" />
+
+<script type="text/javascript">
+function act1() { $('#msg').text('<?php h2(@$_GET['data']); ?>'); }
+function act2() { $('#msg').html('<?php h2(@$_GET['data']); ?>'); }
+</script>
+
+</body>
+</html>

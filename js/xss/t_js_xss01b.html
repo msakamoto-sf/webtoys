@@ -1,0 +1,15 @@
+<html>
+<head>
+<title>JavaScript XSS Test</title>
+</head>
+<body>
+Hello, 
+<script type="text/javascript">
+(function (){
+	var s = '</script><script>alert('xss')</script>World!';
+	document.write(s);
+})();
+</script>
+
+</body>
+</html>

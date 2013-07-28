@@ -1,0 +1,22 @@
+<html>
+<head>
+<title>jQuery XSS Test</title>
+<script type="text/javascript" src="./libs/jquery-1.6.1.js"></script>
+</head>
+<body>
+<script type="text/javascript">
+function add_html(msg)
+{
+	$(msg).appendTo("body");
+}
+</script>
+
+<input type="button" value="test1" onClick="add_html('<b>hello</b>');" /><br />
+<a href="#foo<b>bar</b>">hash1</a><br />
+<hr />
+after "hash1" link click:<br />
+<input type="button" value="test2" onClick="add_html(location.hash);" /><br />
+<input type="button" value="test3" onClick="add_html(location.hash.substring(1));" /><br />
+
+</body>
+</html>

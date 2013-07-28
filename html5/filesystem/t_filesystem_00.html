@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head><title>File System API demo</title></head>
+<body>
+<h2>File System API Demos</h2>
+<h3>Persistent File System</h3>
+<a href="#" onclick="showPersistentRoot();return false;">show Persistent Root</a><br>
+<textarea id="p_text" rows="5" cols="40"></textarea><br>
+<a href="#" onclick="saveToPersistent();return false;">save to Persistent "foo.txt"</a><br>
+<a href="#" onclick="loadFromPersistent();return false;">load from Persistent "foo.txt"</a><br>
+<div id="p_content"></div>
+
+
+<h3>Temporary File System</h3>
+<a href="#" onclick="showTemporaryRoot();return false;">show Temporary Root</a><br>
+<textarea id="t_text" rows="5" cols="40"></textarea><br>
+<a href="#" onclick="saveToTemporary();return false;">save to Temporary "foo.txt"</a><br>
+<a href="#" onclick="loadFromTemporary();return false;">load from Temporary "foo.txt"</a><br>
+<div id="t_content"></div>
+
+<script>
+window.requestFileSystem = window.requestFileSystem || window.webkitRequestFileSystem;
+
+// {{{ errorHandler
+
+function errorHandler(e)
+{
+  var msg = '';
+  switch (e.code) {
+    case FileError.QUOTA_EXCEEDED_ERR:
+      msg = 'QUOTA_EXCEEDED_ERR';
+      break;
+    case FileError.NOT_FOUND_ERR:
+      msg = 'NOT_FOUND_ERR';
+      break;
+    case FileError.SECURITY_ERR:
+      msg = 'SECURITY_ERR';
+      break;
+    case FileError.INVALID_MODIFICATION_ERR:
+      msg = 'INVALID_MODIFICATION_ERR';
+      break;
+    case FileError.INVALID_STATE_ERR:
+      msg = 'INVALID_STATE_ERR';
+      break;
+    default:
+      msg = 'Unknown Error';
+      break;
+  };
+
+  console.log('Error: ' + msg);
+}
+
+// }}}
+// {{{ wrapChromePersistentQuota
+
+function wrapChromePersistentQuota(fun)
+{
+  window.webkitStorageInfo.requestQuota(
+    window.PERSISTENT, 
+    1024*1024, 
+    function(grantedBytes) {
+      window.requestFileSystem(PERSISTENT, grantedBytes, fun, errorHandler);
+    },
+    errorHandler
+    );
+}
+
+// }}}
+
+function showFSInfo(fs) {
+  alert(fs.name + "\n" + fs.root.name + "\n" + fs.root.fullPath);
+}
+
+function showPersistentRoot() {
+  wrapChromePersistentQuota(showFSInfo);
+}
+
+function showTemporaryRoot() {
+  window.requestFileSystem(window.TEMPORARY, 0, showFSInfo, errorHandler);
+}
+
+// {{{ saveToPersistent
+
+function saveToPersistent()
+{
+  wrapChromePersistentQuota(
+      function(fs){
+      fs.root.getFile("foo.txt", {create: true}, 
+        function(fileEntry) {
+        alert("fullpath=" + fileEntry.fullPath);
+        fileEntry.createWriter(
+          function(writer) {
+          writer.onwrite = function(evt) { alert("success"); }
+          var data = document.getElementById("p_text").value;
+          //var bb = new BlobBuilder();
+          var bb = new WebKitBlobBuilder();
+          bb.append(data);
+          writer.write(bb.getBlob('text/plain'));
+          },
+          errorHandler
+          );
+        }, 
+        errorHandler
+        );
+      });
+}
+
+// }}}
+// {{{ loadFromPersistent
+
+function loadFromPersistent()
+{
+  wrapChromePersistentQuota(
+      function(fs){
+      fs.root.getFile("foo.txt", {}, 
+        function(fileEntry) {
+        fileEntry.file(function(file) {
+          var reader = new FileReader();
+          reader.onloadend = function(e) {
+          var txtArea = document.getElementById('p_content');
+          txtArea.innerText = this.result;
+          };
+          reader.readAsText(file);
+          }, 
+          errorHandler);
+        }, errorHandler);
+      });
+}
+
+// }}}
+// {{{ saveToTemporary
+
+function saveToTemporary() {
+  window.requestFileSystem(window.TEMPORARY, 1024*1024, 
+      function(fs){
+      fs.root.getFile("foo.txt", {create: true}, 
+        function(fileEntry) {
+        alert("fullpath=" + fileEntry.fullPath);
+        fileEntry.createWriter(
+          function(writer) {
+          writer.onwrite = function(evt) { alert("success"); }
+          var data = document.getElementById("t_text").value;
+          var bb = new WebKitBlobBuilder();
+          bb.append(data);
+          writer.write(bb.getBlob('text/plain'));
+          },
+          errorHandler
+          );
+        }, 
+        errorHandler
+        );
+      }, errorHandler);
+}
+
+// }}}
+// {{{ loadFromTemporary
+
+function loadFromTemporary()
+{
+  window.requestFileSystem(window.TEMPORARY, 1024*1024, 
+      function(fs){
+      fs.root.getFile("foo.txt", {}, 
+        function(fileEntry) {
+        fileEntry.file(function(file) {
+          var reader = new FileReader();
+          reader.onloadend = function(e) {
+          var txtArea = document.getElementById('t_content');
+          txtArea.innerText = this.result;
+          };
+          reader.readAsText(file);
+          }, 
+          errorHandler);
+        }, errorHandler);
+      }, errorHandler);
+}
+
+// }}}
+
+</script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+<Files nonbasicauth.html>
+# passthru
+</Files>
+<Files basicauth.html>
+AuthType Basic
+AuthName "Test Realm"
+AuthUserFile /Users/msakamoto/Sites/webtoys/security/xst/.htpasswd
+Require valid-user
+</Files>
+
