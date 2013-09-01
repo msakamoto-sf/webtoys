@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>postMessage() demo : cross origin (parent : sender)</title>
+  </head>
+  <body>
+    <h2>host : test1.example.com</h2>
+    <!-- from http://javascript.info/tutorial/cross-window-messaging-with-postmessage -->
+    <iframe src="http://test2.example.com/webtoys/html5/postmessage/02_crossorigin_child.html" id="child"></iframe>
+    <form name="form">
+      <input type="text" name="msg" value="Your message"/><br>
+      target's origin: 
+      <input type="text" name="target" value="http://test2.example.com" size="60"/>
+      <input type="submit"/>
+    </form>
+    <script>
+      var win = document.getElementById("child").contentWindow;
+      document.forms.form.onsubmit = function() {
+        win.postMessage(this.elements.msg.value, this.elements.target.value);
+        return false;
+      }
+    </script>
+  </body>
+</html>

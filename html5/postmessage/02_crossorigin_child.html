@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>postMessage() demo : cross origin (child : receiver)</title>
+  </head>
+  <body>
+    <h3>host : test2.example.com</h3>
+    <!-- from http://javascript.info/tutorial/cross-window-messaging-with-postmessage -->
+    <div id="test">Send me a message!</div>
+    <script>
+      function listener(event){
+        console.log("event.origin", event.origin);
+        console.log("event.data", event.data);
+        if (event.origin !== "http://test1.example.com") {
+          console.log("not allowed from : " + event.origin);
+          return;
+        }
+        document.getElementById("test").innerHTML = "received: " + event.data;
+      }
+      if (window.addEventListener){
+        addEventListener("message", listener, false);
+      } else {
+        attachEvent("onmessage", listener);
+      }
+    </script>
+  </body>
+</html>

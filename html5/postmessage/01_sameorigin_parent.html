@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>postMessage() demo : same origin (parent : sender)</title>
+  </head>
+  <body>
+    <!-- from http://javascript.info/tutorial/cross-window-messaging-with-postmessage -->
+    <iframe src="./01_sameorigin_child.html" id="child" style="height:60px"></iframe>
+    <form name="form">
+      <input type="text" name="msg" value="Your message"/>
+      <input type="submit"/>
+    </form>
+    <script>
+      var win = document.getElementById("child").contentWindow;
+      document.forms.form.onsubmit = function() {
+        win.postMessage(this.elements.msg.value, "*");
+        return false;
+      }
+    </script>
+  </body>
+</html>
