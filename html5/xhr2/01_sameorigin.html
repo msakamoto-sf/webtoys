@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>XHR (Same Origin)</title>
+  <script src="../../js/libs/jquery-2.0.3.min.js"></script>
+  <script>
+$(document).ready(function(){
+  var jsonhandler = function() {
+    var curxhr = this;
+    switch (curxhr.readyState) {
+      case 0: console.log(curxhr, "readyState=UNSENT"); break;
+      case 1: console.log(curxhr, "readyState=OPENED"); break;
+      case 2: console.log(curxhr, "readyState=HEADERS_RECEIVED"); break;
+      case 3: console.log(curxhr, "readyState=LOADING"); break;
+      case 4: console.log(curxhr, "readyState=DONE"); break;
+      default: console.log(curxhr);
+    }
+    if (curxhr.readyState != this.DONE) {
+      return;
+    }
+    if (curxhr.status == 200) {
+      var jsonText = curxhr.responseText;
+      console.log(jsonText);
+      var jsonObj = JSON.parse(jsonText);
+      var jsonTextPretty = JSON.stringify(jsonObj, null, " ");
+      $("form[name='common'] textarea[name='jsonres']").val(jsonTextPretty);
+    }
+  };
+  $("form[name='simple_get'] input[name='xhr']:button").click(function(event) {
+    var endpoint_url = $("form[name='common'] input[name='endpoint']:text").val();
+    var xhr = new XMLHttpRequest();
+    var use_async = false;
+    xhr.onreadystatechange = jsonhandler;
+    xhr.open('GET', endpoint_url, use_async);
+    xhr.send();
+  });
+  $("form[name='get_with_customheader'] input[name='xhr']:button").click(function(event) {
+    var endpoint_url = $("form[name='common'] input[name='endpoint']:text").val();
+    var xhr = new XMLHttpRequest();
+    var use_async = false;
+    xhr.onreadystatechange = jsonhandler;
+    xhr.open('GET', endpoint_url, use_async);
+    xhr.setRequestHeader("X-Custom-Header1", "Hello");
+    xhr.setRequestHeader("X-Custom-Header2", "World");
+    xhr.send();
+  });
+  $("form[name='simple_post'] input[name='xhr']:button").click(function(event) {
+    var endpoint_url = $("form[name='common'] input[name='endpoint']:text").val();
+    var xhr = new XMLHttpRequest();
+    var use_async = false;
+    xhr.onreadystatechange = jsonhandler;
+    xhr.open('POST', endpoint_url, use_async);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.send("p1=ABC&p2=987");
+  });
+
+});
+  </script>
+</head>
+<body>
+  <div id="common">
+    <form action="" name="common">
+      endpoint:<br>
+      <input type="text" name="endpoint" value="./endpoint.php?g1=123&g1=456&g2[]=abc&g2[]=def&g3=GHI" size="100"><br>
+      JSON response:<br>
+      <textarea name="jsonres" cols="50" rows="10"></textarea>
+    </form>
+  </div>
+  <hr>
+  <div id="simple_get">
+    <form action="" name="simple_get">
+      <input type="button" name="xhr" value="Simple GET"><br>
+    </form>
+  </div>
+  <hr>
+  <div id="get_with_customheader">
+    <form action="" name="get_with_customheader">
+      <input type="button" name="xhr" value="GET with Custom Headers"><br>
+    </form>
+  </div>
+  <hr>
+  <div id="simple_post">
+    <form action="" name="simple_post">
+      <input type="button" name="xhr" value="Simple POST"><br>
+    </form>
+  </div>
+  <!-- TODO : add javascript-generated multipart-request, cross-origin pattens -->
+</body>
+</html>
