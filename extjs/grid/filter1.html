@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>1st program</title>
+  <link rel="stylesheet" type="text/css" href="../../../ext-4/resources/css/ext-all-debug.css" />
+
+  <!-- Hmm... Is there any better way ? -->
+  <link rel="stylesheet" type="text/css" href="../../../ext-4/examples/ux/grid/css/GridFilters.css" />
+  <link rel="stylesheet" type="text/css" href="../../../ext-4/examples/ux/grid/css/RangeMenu.css" />
+  <!--
+    related ?
+    http://www.sencha.com/forum/showthread.php?123873-Ext.ux
+    http://www.sencha.com/forum/archive/index.php/t-140370.html?s=c548e4548ada6834c7d3278f8c0d7d14
+  -->
+
+  <script type="text/javascript" src="../../../ext-4/ext-all-debug.js"></script>
+  <script type="text/javascript" src="common.js"></script>
+  <script>
+/*
+ * 'Ext.ux' are user extended component, so, 
+ * you must setup Ext.Loader manually...
+ * see : http://stackoverflow.com/questions/7359512/how-to-use-filters-in-a-gridpanel
+ */
+Ext.Loader.setConfig({enabled: true});
+Ext.Loader.setPath('Ext.ux', '../../../ext-4/examples/ux');
+Ext.require([
+  'Ext.grid.*',
+  'Ext.data.*',
+  'Ext.ux.grid.FiltersFeature'
+]);
+
+Ext.onReady(function(){
+  var filterConfig = {
+    ftype: 'filters',
+    autoReload: false,
+    local: true,
+    filters: [{
+      type: 'numeric',
+      dataIndex: 'id'
+    },{
+      type: 'string',
+      dataIndex: 'name'
+    },{
+    }]
+  };
+  var grid = Ext.create('Ext.grid.Panel', {
+    title: 'local filter test',
+    store: Ext.create('Toys.grid.store.Person'),
+    features: [ filterConfig ],
+    autoScroll: true,
+    loadMask: true,
+    columns: [{
+      text: 'ID',
+      dataIndex: 'id'
+    },{
+      text: 'NAME',
+      dataIndex: 'name'
+    },{
+      text: 'EMAIL',
+      dataIndex: 'email',
+      filter: {type: 'string'}
+    },{
+      text: 'AGE',
+      dataIndex: 'age',
+      xtype: 'numbercolumn',
+      format: '0,000',
+      filter: {type: 'numeric'}
+    },{
+      text: 'ACTIVE',
+      dataIndex: 'active',
+      xtype: 'booleancolumn',
+      trueText: 'Active',
+      falseText: 'InActive',
+      filter: {type: 'boolean'}
+    },{
+      text: 'BIRTHDAY',
+      dataIndex: 'birthday',
+      xtype: 'datecolumn',
+      format: 'Y-m-d H:i:s',
+      filter: true
+    }]
+  });
+  Ext.create('Ext.container.Viewport', {
+    layout: 'border',
+    items: [{
+      region: 'north',
+      layout: 'hbox',
+      items: [{
+        xtype: 'numberfield',
+        name: 'sz',
+        fieldLabel: 'Request Record Size',
+        value: 10
+      },{
+        xtype: 'button',
+        text: 'load',
+        handler: function() {
+          var szForm = Ext.ComponentQuery.query('numberfield[name=sz]')[0];
+          grid.getStore().load({ params: { total: szForm.getValue() } });
+        }
+      },{
+        xtype: 'button',
+        text: 'All Filter Data',
+        handler: function() {
+          var data = Ext.encode(grid.filters.getFilterData());
+          Ext.Msg.alert('filter data', data);
+        }
+      },{
+        xtype: 'button',
+        text: 'Clear Filter',
+        handler: function() {
+          grid.filters.clearFilters();
+        }
+      }]
+    },{
+      region: 'center',
+
+      /* this must be needed for 'autoScroll: true' and
+       * proper size calculating.
+       * see also:
+       * http://stackoverflow.com/questions/9023681/extjs-gridpanel-not-showing-scrollbars
+       */
+      layout: 'fit',
+      items: [ grid ]
+    }]
+  });
+});
+  </script>
+</head>
+<body>
+</body>
+</html>
+
