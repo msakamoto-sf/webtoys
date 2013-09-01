@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Typed Arrays : basics</title>
+</head>
+<body>
+  <script>
+    var f64a = new Float64Array(8);
+    f64a[0] = 10;
+    f64a[1] = 20;
+    f64a[2] = f64a[0] + f64a[1];
+    console.log(f64a);
+    var ab1 = new ArrayBuffer(8);
+    var int32a1 = new Int32Array(ab1);
+    int32a1[0] = 1;
+    int32a1[1] = 2;
+    int32a1[2] = 3; // ignored
+    var i;
+    for (i = 0; i < int32a1.length; i++) {
+      console.log("int32a1[" + i + "]", int32a1[i]);
+    }
+    var ui8a1 = new Uint8Array(ab1);
+    for (i = 0; i < ui8a1.length; i++) {
+      console.log("ui8a1[" + i + "]", ui8a1[i]);
+    }
+
+    var ui8a2 = new Uint8Array(16);
+    var ui32a1 = new Uint32Array(ui8a2.buffer);
+    ui32a1[0] = 0xFF02FE01;
+    ui32a1[1] = 2;
+    ui32a1[2] = 3;
+    ui32a1[3] = 4;
+    for (i = 0; i < ui8a2.length; i++) {
+      console.log("ui8a2[" + i + "]", ui8a2[i]);
+    }
+    var dv1 = new DataView(ui8a2.buffer);
+    for (i = 0; i < dv1.byteLength; i++) {
+      console.log("dv1[" + i + "]", dv1.getUint8(i));
+    }
+  </script>
+</body>
+</html>
