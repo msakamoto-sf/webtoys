@@ -54,18 +54,46 @@ $(document).ready(function(){
     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     xhr.send("p1=ABC&p2=987");
   });
-
+  $("input[name='clear']:button").click(function(event) {
+    $("form[name='common'] textarea[name='jsonres']").val('');
+  });
 });
   </script>
 </head>
 <body>
+  <h2>XHR/XHR2 Demo</h2>
+  <p>
+  1st, access this page as <a href="http://test1.example.com/webtoys/html5/xhr2/01_sameorigin.html">http://test1.example.com/webtoys/html5/xhr2/01_sameorigin.html</a><br>
+  set hosts file as:
+  <textarea cols="50" rows="3">127.0.0.1 test1.example.com
+127.0.0.1 test2.example.com
+127.0.0.1 trap1.example.com</textarea>
+  </p>
+  <div id="xhr_variations">
+    <form action="" name="xhr_buttons">
+      <select name="target_url_prefix">
+        <option value="http://test1.example.com/webtoys/html5/xhr2/">http://test1.example.com/webtoys/html5/xhr2/</option>
+        <option value="http://test2.example.com/webtoys/html5/xhr2/">http://test2.example.com/webtoys/html5/xhr2/</option>
+      </select>
+      <input type="text" name="endpoint" value="./endpoint.php?g1=123&amp;g1=456&amp;g2[]=abc&amp;g2[]=def&amp;g3=GHI" size="100"><br>
+
+      <input type="button" name="simple_get" value="Simple GET">
+      &nbsp;|&nbsp;
+      <input type="button" name="get_with_customheader" value="GET with Custom Headers">
+      &nbsp;|&nbsp;
+      <input type="button" name="simple_post" value="Simple POST">
+      &nbsp;|&nbsp;
+      <input type="button" name="post_with_customheader" value="POST with Custom Headers">
+    </form>
+  </div>
+  <hr>
   <div id="common">
     <form action="" name="common">
       endpoint:<br>
       <input type="text" name="endpoint" value="./endpoint.php?g1=123&g1=456&g2[]=abc&g2[]=def&g3=GHI" size="100"><br>
-      JSON response:<br>
-      <textarea name="jsonres" cols="50" rows="10"></textarea>
-    </form>
+      JSON response: &nbsp; <input type="button" name="clear" value="clear"><br>
+      <textarea name="jsonres" cols="120" rows="10"></textarea>
+    </form><br>
   </div>
   <hr>
   <div id="simple_get">
